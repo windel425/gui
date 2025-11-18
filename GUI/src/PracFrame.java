@@ -3,6 +3,11 @@ import javax.swing.JOptionPane;
 import javax.swing.*;
 import java.io.*;
 import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
 
 
 /*
@@ -21,7 +26,7 @@ public class PracFrame extends javax.swing.JFrame {
      */
     public PracFrame() {
         initComponents();
-        loadStudentData();
+        loadTableData();
     }
 
     /**
@@ -45,6 +50,8 @@ public class PracFrame extends javax.swing.JFrame {
         gpaTxt = new javax.swing.JTextField();
         delete = new java.awt.Button();
         add = new java.awt.Button();
+        update = new java.awt.Button();
+        search = new java.awt.Button();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tableData = new javax.swing.JTable();
@@ -103,6 +110,22 @@ public class PracFrame extends javax.swing.JFrame {
             }
         });
 
+        update.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        update.setLabel("UPDATE");
+        update.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateActionPerformed(evt);
+            }
+        });
+
+        search.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        search.setLabel("SEARCH");
+        search.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -119,19 +142,26 @@ public class PracFrame extends javax.swing.JFrame {
                     .addComponent(studentIDTxt)
                     .addComponent(nameTxt)
                     .addComponent(ageTxt)
-                    .addComponent(gpaTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))
+                    .addComponent(gpaTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+                    .addComponent(add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(62, 62, 62)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(delete, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
-                    .addComponent(add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(51, Short.MAX_VALUE))
+                    .addComponent(update, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(search, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(43, 43, 43)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(update, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
@@ -140,18 +170,18 @@ public class PracFrame extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(nameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel3)
-                                .addComponent(ageTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(15, 15, 15)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(ageTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
                             .addComponent(gpaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(5, 5, 5)))
-                .addContainerGap(105, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(73, Short.MAX_VALUE))
         );
 
         tableData.setModel(new javax.swing.table.DefaultTableModel(
@@ -205,7 +235,7 @@ public class PracFrame extends javax.swing.JFrame {
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(73, Short.MAX_VALUE))
+                .addContainerGap(71, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -222,84 +252,125 @@ public class PracFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    private void loadTableData() {
+    String sql = "SELECT * FROM students";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        DefaultTableModel model = (DefaultTableModel) tableData.getModel();
+        model.setRowCount(0); // clear JTable first
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("id"),
+                rs.getString("name"),
+                rs.getInt("age"),
+                rs.getDouble("gpa")
+            });
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+    }
+}
+    
     private void studentIDTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentIDTxtActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_studentIDTxtActionPerformed
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
         // TODO add your handling code here:
-        
-        try {
+       
             
             String id = studentIDTxt.getText();
             String name = nameTxt.getText();
             String age = ageTxt.getText();          
             String gpa =  gpaTxt.getText();
             
+            
             if(id.isEmpty() || name.isEmpty() || age.isEmpty() || gpa.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please Fill out the fields...");
                 return;
                 
-            }else {
-                DefaultTableModel model = (DefaultTableModel) tableData.getModel();
-                model.addRow(new Object[] {id, name, age, gpa});
-                
-                studentIDTxt.setText("");
-                nameTxt.setText("");
-                ageTxt.setText("");
-                gpaTxt.setText("");
-                
-                
             }
             
-            Integer.parseInt(age);
-            Double.parseDouble(gpa);
+         String sql = "INSERT INTO students(id, name, age, gpa) VALUES (?, ?, ?, ?)";
+
+   
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+      
+        pst.setString(1, (id));
+        pst.setString(2, name);
+        pst.setInt(3, Integer.parseInt(age));
+        pst.setDouble(4, Double.parseDouble(gpa));
+
+       
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Student added successfully!");
+
+       
+        DefaultTableModel model = (DefaultTableModel) tableData.getModel();
+        model.addRow(new Object[]{id, name, age, gpa});
+
+       
+        studentIDTxt.setText("");
+        nameTxt.setText("");
+        ageTxt.setText("");
+        gpaTxt.setText("");
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+    }
             
-            String data = id + ", " + name + ", " + age + ", " + gpa;
-            
-            try {
-                
-                BufferedWriter wr = new BufferedWriter(new FileWriter("StudentInfo.txt",true));
-                wr.write(data);
-                wr.newLine();
-                wr.close();
-                
-                JOptionPane.showMessageDialog(this, "Data are Successfully Savae");
-            
-            } catch(Exception o) {
-                JOptionPane.showMessageDialog(this, "Error Saving the Data");
-            }
-        
-        } catch(Exception e) {
-            JOptionPane.showMessageDialog(this, "Envalid Input...");
-        }
     }//GEN-LAST:event_addActionPerformed
 
-    public void loadStudentData() {
-    
-        DefaultTableModel model = (DefaultTableModel) tableData.getModel();
-        model.setRowCount(0);
-        
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("StudentInfo.txt"));
-            String line;
-            
-            while((line = br.readLine()) != null) {
-                String data[] = line.split(",");
-                
-               
-                model.addRow(data);
-            }
-            
-            br.close();
-            
-        } catch(Exception e) {
-            JOptionPane.showMessageDialog(this, "Error While Reading the Data");
-        }
-    }
     
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
         // TODO add your handling code here:
+        
+        
+    String id = studentIDTxt.getText(); // ID to delete
+
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter the student ID to delete!");
+        return;
+    }
+
+    String sql = "DELETE FROM students WHERE id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, id); // ID as string
+        int rowsAffected = pst.executeUpdate();
+
+        if (rowsAffected > 0) {
+            JOptionPane.showMessageDialog(this, "Student deleted successfully!");
+
+            // Remove from JTable
+            DefaultTableModel model = (DefaultTableModel) tableData.getModel();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0).toString().equals(id)) {
+                    model.removeRow(i);
+                    break;
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Student ID not found!");
+        }
+
+        studentIDTxt.setText("");
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+    }
+        
     }//GEN-LAST:event_deleteActionPerformed
 
     private void nameTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTxtActionPerformed
@@ -313,6 +384,99 @@ public class PracFrame extends javax.swing.JFrame {
     private void gpaTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gpaTxtActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_gpaTxtActionPerformed
+
+    private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
+        // TODO add your handling code here:
+        
+    String id = studentIDTxt.getText();
+
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter student ID to search!");
+        return;
+    }
+
+    String sql = "SELECT * FROM students WHERE id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, id); // ID as string
+        ResultSet rs = pst.executeQuery();
+
+        DefaultTableModel model = (DefaultTableModel) tableData.getModel();
+        model.setRowCount(0); // clear JTable before showing result
+
+        if (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("id"),
+                rs.getString("name"),
+                rs.getInt("age"),
+                rs.getDouble("gpa")
+            });
+        } else {
+            JOptionPane.showMessageDialog(this, "Student ID not found!");
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+    }
+        
+        
+    }//GEN-LAST:event_searchActionPerformed
+
+    private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
+        // TODO add your handling code here:
+        
+    String id = studentIDTxt.getText();
+    String name = nameTxt.getText();
+    String age = ageTxt.getText();
+    String gpa = gpaTxt.getText();
+
+    if (id.isEmpty() || name.isEmpty() || age.isEmpty() || gpa.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill out all fields to update!");
+        return;
+    }
+
+    String sql = "UPDATE students SET name = ?, age = ?, gpa = ? WHERE id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, name);
+        pst.setInt(2, Integer.parseInt(age));
+        pst.setDouble(3, Double.parseDouble(gpa));
+        pst.setString(4, id); // ID as string
+
+        int rowsAffected = pst.executeUpdate();
+        if (rowsAffected > 0) {
+            JOptionPane.showMessageDialog(this, "Student updated successfully!");
+
+            // Update JTable
+            DefaultTableModel model = (DefaultTableModel) tableData.getModel();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0).toString().equals(id)) {
+                    model.setValueAt(name, i, 1);
+                    model.setValueAt(age, i, 2);
+                    model.setValueAt(gpa, i, 3);
+                    break;
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Student ID not found!");
+        }
+
+        studentIDTxt.setText("");
+        nameTxt.setText("");
+        ageTxt.setText("");
+        gpaTxt.setText("");
+
+    } catch (SQLException | NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+    }
+        
+        
+    }//GEN-LAST:event_updateActionPerformed
 
     /**
      * @param args the command line arguments
@@ -363,7 +527,9 @@ public class PracFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField nameTxt;
+    private java.awt.Button search;
     private javax.swing.JTextField studentIDTxt;
     private javax.swing.JTable tableData;
+    private java.awt.Button update;
     // End of variables declaration//GEN-END:variables
 }
